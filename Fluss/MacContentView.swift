@@ -50,12 +50,27 @@ struct MacContentView: View {
                     Image(systemName: "chevron.right")
                 }
                 .foregroundStyle(.white)
-                .buttonStyle(.plain)
                 .padding()
                 .background(.accent)
                 .clipShape(.rect(cornerRadius: 8))
             }
+            
+            Button(action: {
+                NSApp.terminate(nil)
+            }) {
+                HStack(alignment: .firstTextBaseline) {
+                    Image(systemName: "power")
+                    Text("Encerrar Fluss")
+                    Spacer()
+                }
+                .foregroundStyle(.accent)
+                .padding()
+                .background(.white)
+                .clipShape(.rect(cornerRadius: 8))
+            }
+            
         }
+        .buttonStyle(.plain)
         .padding(16)
         .background(Color("Background").ignoresSafeArea())
         .preferredColorScheme(.dark)

@@ -9,7 +9,13 @@ import WidgetKit
 import SwiftUI
 import Charts
 
+class EntryCache {
+    var previousEntry: SimpleEntry?
+}
+
 struct Provider: TimelineProvider {
+    private let entryCache = EntryCache()
+    
     func placeholder(in context: Context) -> SimpleEntry {
         SimpleEntry(date: Date(), leitura: Leitura.sample)
     }
@@ -48,10 +54,20 @@ struct Provider: TimelineProvider {
             }
             
             if let nextUpdate {
-                let timeline = Timeline(
-                    entries: [entry],
-                    policy: .after(nextUpdate)
-                )
+                let timeline: Timeline<SimpleEntry>
+                
+                if entry.leitura.alerta == .failure, let previousEntry = entryCache.previousEntry {
+                    timeline = Timeline(
+                        entries: [previousEntry],
+                        policy: .after(nextUpdate)
+                    )
+                } else {
+                    timeline = Timeline(
+                        entries: [entry],
+                        policy: .after(nextUpdate)
+                    )
+                    entryCache.previousEntry = entry
+                }
                 
                 completion(timeline)
             }
@@ -313,7 +329,13 @@ struct FlussSmallWidget: Widget {
     }
     
     func content(entry: SimpleEntry) -> some View {
-        FlussSmallWidgetView(systemImage: entry.leitura.alerta.symbol(), title: String(entry.leitura.nivelAtual?.nivel ?? 0)+"m")
+        if entry.leitura.alerta == .failure {
+            FlussSmallWidgetView(systemImage: entry.leitura.alerta.symbol(),
+                                 title: "")
+        } else {
+            FlussSmallWidgetView(systemImage: entry.leitura.alerta.symbol(),
+                                 title: String(entry.leitura.nivelAtual?.nivel ?? 0)+"m")
+        }
     }
 }
 
@@ -337,7 +359,13 @@ struct FlussSmallWidget2: Widget {
     }
     
     func content(entry: SimpleEntry) -> some View {
-        FlussSmallWidgetView(systemImage: entry.leitura.variacao > 0 ? "chevron.up" : "chevron.down", title: String(Int(round(entry.leitura.variacao*100)))+"cm")
+        if entry.leitura.alerta == .failure {
+            FlussSmallWidgetView(systemImage: entry.leitura.alerta.symbol(),
+                                 title: "")
+        } else {
+            FlussSmallWidgetView(systemImage: entry.leitura.variacao > 0 ? "chevron.up" : "chevron.down",
+                                 title: String(Int(round(entry.leitura.variacao*100)))+"cm")
+        }
     }
 }
 #endif

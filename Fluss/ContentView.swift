@@ -25,8 +25,8 @@ struct ContentView: View {
     @State var updateTasks = Set<AnyCancellable>()
     
     var body: some View {
-        NavigationView {
-            ScrollView {
+        NavigationStack {
+            ScrollView(showsIndicators: false) {
                 VStack(spacing: 16) {
                     VStack(spacing: 0) {
                         VideoPlayer(player: Self.video.player)
@@ -165,12 +165,15 @@ struct ContentView: View {
                 
                 try await Task.sleep(nanoseconds: UInt64(60_000_000_000*minutes+60_000_000_000*60*hours))
                 var leitura = await API.fetchLeituras()
-                leitura.niveis = Array(leitura.niveis.suffix(6))
                 
-                if let nivel = leitura.nivelAtual {
-                    for activity in Activity<LeituraAttributes>.activities {
-                        await activity.update(using: .init(leitura: leitura),
-                                              alertConfiguration: .init(title: "Atualização do nível do rio", body: "O nível do rio agora está em \(String(format: "%.2f", nivel.nivel))m.", sound: .default))
+                if leitura.alerta != .failure {
+                    leitura.niveis = Array(leitura.niveis.suffix(6))
+                    
+                    if let nivel = leitura.nivelAtual {
+                        for activity in Activity<LeituraAttributes>.activities {
+                            await activity.update(using: .init(leitura: leitura),
+                                                  alertConfiguration: .init(title: "Atualização do nível do rio", body: "O nível do rio agora está em \(String(format: "%.2f", nivel.nivel))m.", sound: .default))
+                        }
                     }
                 }
             }
