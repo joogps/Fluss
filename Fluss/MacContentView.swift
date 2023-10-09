@@ -5,9 +5,10 @@
 //  Created by João Gabriel Pozzobon dos Santos on 08/10/23.
 //
 
-import SwiftUI
-
 #if os(macOS)
+import SwiftUI
+import WidgetKit
+
 struct MacContentView: View {
     var body: some View {
         VStack(spacing: 8) {
@@ -39,15 +40,16 @@ struct MacContentView: View {
                     .padding(.top, 2)
             }
             .padding()
-            .background(.ultraThinMaterial)
+            .background(.quinary)
             .clipShape(.rect(cornerRadius: 8))
             
             Link(destination: URL(string: "https://instagram.com/joogps")!) {
                 HStack {
-                    Link("por joão gabriel", destination: URL(string: "https://instagram.com/joogps")!)
-                        .foregroundStyle(.white)
+                    Text("desenvolvido por joão gabriel")
                     Spacer()
+                    Image(systemName: "chevron.right")
                 }
+                .foregroundStyle(.white)
                 .buttonStyle(.plain)
                 .padding()
                 .background(.accent)
@@ -58,6 +60,9 @@ struct MacContentView: View {
         .background(Color("Background").ignoresSafeArea())
         .preferredColorScheme(.dark)
         .font(.body.bold())
+        .onAppear {
+            WidgetCenter.shared.reloadAllTimelines()
+        }
     }
 }
 

@@ -27,7 +27,6 @@ struct Provider: TimelineProvider {
         Task {
             let leitura = await API.fetchLeituras()
             let entry = SimpleEntry(date: .now, leitura: leitura)
-            
             var nextUpdate: Date?
             let calendar = Calendar.current
             
@@ -37,14 +36,14 @@ struct Provider: TimelineProvider {
                 if calendar.component(.hour, from: date) >= calendar.component(.hour, from: .now) {
                     var components = DateComponents()
                     components.hour = 1
-                    components.minute = 5
+                    components.minute = 3
                     nextUpdate = calendar.date(byAdding: components, to: date)
                 }
             }
             
-            if nextUpdate != nil {
+            if nextUpdate == nil {
                 var components = DateComponents()
-                components.minute = 5
+                components.minute = 3
                 nextUpdate = calendar.date(byAdding: components, to: .now)
             }
             
@@ -95,13 +94,11 @@ struct FlussWidgetEntryView : View {
     }
     
     var updatedTime: String? {
-        if var date = niveis.last?.dataLeitura {
+        if let date = niveis.last?.dataLeitura {
             let formatter = DateFormatter()
             formatter.dateStyle = .none
             formatter.timeStyle = .short
             formatter.locale = .init(identifier: "pt_BR")
-            
-            date.addTimeInterval(-60*60*3)
             
             return formatter.string(from: date)
         }
@@ -175,7 +172,7 @@ struct FlussWidgetEntryView : View {
                 
                 HStack(alignment: .lastTextBaseline) {
                     VStack(alignment: .leading) {
-                        Text(String(niveis.last?.nivel ?? 0)+"m")
+                        Text(String(format: "%.2f", niveis.last?.nivel ?? 0)+"m")
                             .kerning(-1.2)
                             .font(.largeTitle.bold())
                             .allowsTightening(true)
@@ -281,13 +278,13 @@ struct FlussWidgetLiveActivity: Widget {
                     .foregroundStyle(leitura.alerta.color())
             }, compactTrailing: {
                 if let nivel = leitura.nivelAtual {
-                    Text(String(nivel.nivel)+"m")
+                    Text(String(format: "%.2f", nivel.nivel)+"m")
                         .foregroundStyle(leitura.alerta.color())
                         .bold()
                 }
             }, minimal: {
                 if let nivel = leitura.nivelAtual {
-                    Text(String(nivel.nivel)+"m")
+                    Text(String(format: "%.2f", nivel.nivel)+"m")
                         .foregroundStyle(leitura.alerta.color())
                         .bold()
                 }

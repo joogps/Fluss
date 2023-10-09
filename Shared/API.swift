@@ -15,7 +15,9 @@ struct API {
     static func fetchLeituras() async -> Leitura {
         do {
             let (data, _) = try await URLSession.shared.data(from: urlBlumenau)
-            let leitura = try JSONDecoder().decode(Leitura.self, from: data)
+            var leitura = try JSONDecoder().decode(Leitura.self, from: data)
+            leitura.niveis = Array(leitura.niveis.suffix(24))
+            
             return leitura
         } catch {
             return Leitura.empty

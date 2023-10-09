@@ -11,6 +11,7 @@ import UserNotifications
 import BackgroundTasks
 import Combine
 import FluidGradient
+import WidgetKit
 
 #if os(iOS)
 import ActivityKit
@@ -116,6 +117,7 @@ struct ContentView: View {
         .onChange(of: scenePhase) { newPhase in
             if newPhase == .active {
                 Self.video.player.play()
+                WidgetCenter.shared.reloadAllTimelines()
                 if #available(iOS 16.1, *) {
                     updateLiveActivity()
                 }
@@ -142,7 +144,8 @@ struct ContentView: View {
                 await activity.end(dismissalPolicy: .immediate)
             }
             
-            if let leitura {
+            if var leitura {
+                leitura.niveis = Array(leitura.niveis.suffix(6))
                 let _ = try Activity.request(
                     attributes: LeituraAttributes(),
                     contentState: .init(leitura: leitura)
@@ -161,11 +164,13 @@ struct ContentView: View {
                 let hours = i
                 
                 try await Task.sleep(nanoseconds: UInt64(60_000_000_000*minutes+60_000_000_000*60*hours))
-                let leitura = await API.fetchLeituras()
+                var leitura = await API.fetchLeituras()
+                leitura.niveis = Array(leitura.niveis.suffix(6))
+                
                 if let nivel = leitura.nivelAtual {
                     for activity in Activity<LeituraAttributes>.activities {
                         await activity.update(using: .init(leitura: leitura),
-                                              alertConfiguration: .init(title: "Atualização do nível do rio", body: "O nível do rio agora está em \(String(format: "%.2f", nivel.nivel))m", sound: .default))
+                                              alertConfiguration: .init(title: "Atualização do nível do rio", body: "O nível do rio agora está em \(String(format: "%.2f", nivel.nivel))m.", sound: .default))
                     }
                 }
             }

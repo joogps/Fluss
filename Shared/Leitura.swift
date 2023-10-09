@@ -141,7 +141,9 @@ enum NivelAlerta {
 }
 
 struct LeituraNivel: Codable, Identifiable, Equatable, Hashable {
-    let id = UUID()
+    var id: String {
+        horaLeitura
+    }
     
     let nivel: Double
     let horaLeitura: String
@@ -150,6 +152,8 @@ struct LeituraNivel: Codable, Identifiable, Equatable, Hashable {
         let dateFormatter = DateFormatter()
         dateFormatter.locale = Locale(identifier: "en_US_POSIX")
         dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss'Z'"
-        return dateFormatter.date(from: horaLeitura) ?? .now
+        var date = dateFormatter.date(from: horaLeitura)
+        date?.addTimeInterval(-60*60*3)
+        return date ?? .now
     }
 }
