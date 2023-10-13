@@ -73,7 +73,7 @@ struct MacContentView: View {
         .buttonStyle(.plain)
         .padding(16)
         .background(Color("Background").ignoresSafeArea())
-        .preferredColorScheme(.dark)
+        .colorScheme(.dark)
         .font(.body.bold())
         .onAppear {
             WidgetCenter.shared.reloadAllTimelines()
