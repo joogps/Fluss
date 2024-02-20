@@ -27,6 +27,7 @@
 		277ABD912AD1C095007C0391 /* FlussWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 277ABD802AD1C093007C0391 /* FlussWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		277ABD982AD1C0AA007C0391 /* API.swift in Sources */ = {isa = PBXBuildFile; fileRef = 277ABD972AD1C0AA007C0391 /* API.swift */; };
 		277ABD992AD1C0EA007C0391 /* API.swift in Sources */ = {isa = PBXBuildFile; fileRef = 277ABD972AD1C0AA007C0391 /* API.swift */; };
+		27D7F3282B5E378700753B2C /* ButtonStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 27D7F3272B5E378700753B2C /* ButtonStyle.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -87,6 +88,7 @@
 		277ABD972AD1C0AA007C0391 /* API.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = API.swift; sourceTree = "<group>"; };
 		277ABD9F2AD205DF007C0391 /* IntentsUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IntentsUI.framework; path = System/Library/Frameworks/IntentsUI.framework; sourceTree = SDKROOT; };
 		277ABDC52AD20610007C0391 /* Intents.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Intents.framework; path = System/Library/Frameworks/Intents.framework; sourceTree = SDKROOT; };
+		27D7F3272B5E378700753B2C /* ButtonStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ButtonStyle.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -136,6 +138,7 @@
 				271AD7692AD212060054D7C0 /* Info.plist */,
 				277ABD6D2AD1BD61007C0391 /* FlussApp.swift */,
 				277ABD6F2AD1BD61007C0391 /* ContentView.swift */,
+				27D7F3272B5E378700753B2C /* ButtonStyle.swift */,
 				271AD7762AD3353C0054D7C0 /* MacContentView.swift */,
 				271AD77B2AD355E60054D7C0 /* Task+AnyCancellable.swift */,
 				277ABD712AD1BD63007C0391 /* Assets.xcassets */,
@@ -297,6 +300,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				271AD77C2AD355E60054D7C0 /* Task+AnyCancellable.swift in Sources */,
+				27D7F3282B5E378700753B2C /* ButtonStyle.swift in Sources */,
 				271AD77E2AD356250054D7C0 /* Leitura.swift in Sources */,
 				271AD7772AD3353C0054D7C0 /* MacContentView.swift in Sources */,
 				277ABD702AD1BD61007C0391 /* ContentView.swift in Sources */,
@@ -452,7 +456,7 @@
 				CODE_SIGN_ENTITLEMENTS = Fluss/Fluss.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 7;
+				CURRENT_PROJECT_VERSION = 8;
 				DEVELOPMENT_ASSET_PATHS = "\"Fluss/Preview Content\"";
 				DEVELOPMENT_TEAM = V9F4J6KX54;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -476,7 +480,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 13.0;
-				MARKETING_VERSION = 1.1;
+				MARKETING_VERSION = 1.2;
 				PRODUCT_BUNDLE_IDENTIFIER = com.joogps.river;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -497,7 +501,7 @@
 				CODE_SIGN_ENTITLEMENTS = Fluss/Fluss.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 7;
+				CURRENT_PROJECT_VERSION = 8;
 				DEVELOPMENT_ASSET_PATHS = "\"Fluss/Preview Content\"";
 				DEVELOPMENT_TEAM = V9F4J6KX54;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -521,7 +525,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 13.0;
-				MARKETING_VERSION = 1.1;
+				MARKETING_VERSION = 1.2;
 				PRODUCT_BUNDLE_IDENTIFIER = com.joogps.river;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";

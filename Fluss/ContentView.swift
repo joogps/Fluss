@@ -80,14 +80,36 @@ struct ContentView: View {
                     .background(.quinary)
                     .clipShape(.rect(cornerRadius: 12))
                     
-                    Link(destination: URL(string: "https://instagram.com/joogps")!) {
+                    Link(destination: URL(string: "https://brasil.un.org/pt-br/175180-o-que-são-mudanças-climáticas")!) {
+                        HStack {
+                            VStack(alignment: .leading) {
+                                Text("Mudanças climáticas")
+                                
+                                Text("Clique para saber mais sobre as mudanças climáticas e o aquecimento global.")
+                                    .font(.footnote)
+                                    .multilineTextAlignment(.leading)
+                                    .foregroundStyle(.secondary)
+                                    .padding(.top, 2)
+                            }
+                            Spacer()
+                            Image(systemName: "chevron.right")
+                        }
+                        .foregroundStyle(.white)
+                        .padding()
+                        .background(Color.accent
+                            .overlay(Color(white: 0.1).blendMode(.luminosity))
+                            .opacity(0.65))
+                        .background(.quinary)
+                        .clipShape(.rect(cornerRadius: 12))
+                    }
+                    
+                    Link(destination: URL(string: "https://joogps.com")!) {
                         HStack {
                             Text("desenvolvido por joão gabriel")
                             Spacer()
                             Image(systemName: "chevron.right")
                         }
                         .foregroundStyle(.white)
-                        .buttonStyle(.plain)
                         .padding()
                         .background(.accent)
                         .clipShape(.rect(cornerRadius: 12))
@@ -95,6 +117,7 @@ struct ContentView: View {
                 }
                 .padding()
             }
+            .buttonStyle(ElasticButtonStyle())
             .navigationTitle("Fluss")
             .background {
                 Color("Background")
@@ -189,6 +212,7 @@ struct ContentView: View {
         let queuePlayer = AVQueuePlayer(playerItem: item)
         let playerLooper = AVPlayerLooper(player: queuePlayer, templateItem: item)
         
+        queuePlayer.isMuted = true
         queuePlayer.play()
         
         return (queuePlayer, playerLooper)
