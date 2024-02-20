@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import AVKit
 
 @main
 struct FlussApp: App {
@@ -13,6 +14,17 @@ struct FlussApp: App {
         #if os(iOS)
         WindowGroup {
             ContentView()
+                .onAppear {
+                    do {
+                        try? AVAudioSession
+                            .sharedInstance()
+                            .setCategory(.playback, options: [.mixWithOthers])
+                        
+                        try? AVAudioSession
+                            .sharedInstance()
+                            .setActive(true)
+                    }
+                }
         }
         #elseif os(macOS)
         MenuBarExtra {
