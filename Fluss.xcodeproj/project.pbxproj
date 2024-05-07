@@ -16,6 +16,7 @@
 		2701CABA2BE9C13000C38E83 /* ReadingAlert.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2701CAB92BE9C13000C38E83 /* ReadingAlert.swift */; };
 		2701CABB2BE9C13000C38E83 /* ReadingAlert.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2701CAB92BE9C13000C38E83 /* ReadingAlert.swift */; };
 		2701CAC22BE9D6FB00C38E83 /* FlussWidget.intentdefinition in Sources */ = {isa = PBXBuildFile; fileRef = 2701CAC12BE9D6FB00C38E83 /* FlussWidget.intentdefinition */; };
+		2701CAC32BE9E39800C38E83 /* FlussWidget.intentdefinition in Sources */ = {isa = PBXBuildFile; fileRef = 2701CAC12BE9D6FB00C38E83 /* FlussWidget.intentdefinition */; };
 		271AD76F2AD2620B0054D7C0 /* LeituraAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 271AD76E2AD2620B0054D7C0 /* LeituraAttributes.swift */; };
 		271AD7702AD262A60054D7C0 /* LeituraAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 271AD76E2AD2620B0054D7C0 /* LeituraAttributes.swift */; };
 		271AD7752AD31D8D0054D7C0 /* Video.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = 271AD7742AD31D8D0054D7C0 /* Video.mp4 */; };
@@ -336,6 +337,7 @@
 			files = (
 				2701CAB72BE9C12900C38E83 /* Reading.swift in Sources */,
 				2701CAB12BE9BC6300C38E83 /* DataSource.swift in Sources */,
+				2701CAC32BE9E39800C38E83 /* FlussWidget.intentdefinition in Sources */,
 				2701CAB42BE9BD4B00C38E83 /* PortoAlegreDataSource.swift in Sources */,
 				271AD77C2AD355E60054D7C0 /* Task+AnyCancellable.swift in Sources */,
 				27D7F3282B5E378700753B2C /* ButtonStyle.swift in Sources */,

@@ -8,25 +8,25 @@
 import SwiftUI
 
 protocol DataSource: Codable, Equatable, Hashable {
-    associatedtype LR: Reading
+    associatedtype R: Reading
     
-    var readings: [LR] { get set }
+    var readings: [R] { get set }
     
     var name: String { get }
     var isSample: Bool? { get set }
     
     static var sample: Self { get }
     static var empty: Self { get }
-    static func alert(from reading: LR) -> ReadingAlert
+    static func alert(from reading: R) -> ReadingAlert
     
-    var sortedReadings: [LR] { get }
+    var sortedReadings: [R] { get }
     var delta: Double { get }
-    var currentReading: LR? { get }
+    var currentReading: R? { get }
     var alert: ReadingAlert { get }
 }
 
 extension DataSource {
-    var sortedReadings: [LR] {
+    var sortedReadings: [R] {
         readings.sorted { $0.date < $1.date }
     }
     
@@ -40,7 +40,7 @@ extension DataSource {
         return last.level - secondLast.level
     }
     
-    var currentReading: LR? {
+    var currentReading: R? {
         sortedReadings.last
     }
     

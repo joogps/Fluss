@@ -22,14 +22,7 @@ struct Provider: IntentTimelineProvider {
 
     func getSnapshot(for configuration: SelectRegionIntent, in context: Context, completion: @escaping (SimpleEntry) -> ()) {
         Task {
-            let leitura: any DataSource
-            switch configuration.region {
-            case .blumenau, .unknown:
-                leitura = await API.fetchBlumenau()
-            case .portoAlegre:
-                leitura = await API.fetchPortoAlegre()
-            }
-            
+            let leitura = await API.fetch(region: configuration.region)
             let entry = SimpleEntry(date: .now, leitura: leitura)
             
             completion(entry)
@@ -38,13 +31,7 @@ struct Provider: IntentTimelineProvider {
 
     func getTimeline(for configuration: SelectRegionIntent, in context: Context, completion: @escaping (Timeline<SimpleEntry>) -> ()) {
         Task {
-            let leitura: any DataSource
-            switch configuration.region {
-            case .blumenau, .unknown:
-                leitura = await API.fetchBlumenau()
-            case .portoAlegre:
-                leitura = await API.fetchPortoAlegre()
-            }
+            let leitura = await API.fetch(region: configuration.region)
             
             let entry = SimpleEntry(date: .now, leitura: leitura)
             var nextUpdate: Date?
@@ -99,7 +86,7 @@ struct FlussWidgetEntryView<D: DataSource>: View {
     
     @Environment(\.widgetFamily) var widgetFamily
     
-    var readings: [D.LR] {
+    var readings: [D.R] {
         if widgetFamily == .systemSmall {
             return Array(leitura.sortedReadings.suffix(3))
         } else {
@@ -107,7 +94,7 @@ struct FlussWidgetEntryView<D: DataSource>: View {
         }
     }
     
-    var sortedByLevel: [D.LR] {
+    var sortedByLevel: [D.R] {
         readings.sorted { $0.level > $1.level }
     }
     
@@ -281,7 +268,7 @@ struct FlussWidget: Widget {
         }
         .supportedFamilies([.systemMedium, .systemSmall])
         .configurationDisplayName("Situação da enchente")
-        .description("Monitore a alteração do nível da água ao longo das últimas horas.")
+        .description("Monitore as variações do nível da água ao longo das últimas horas.")
     }
     
     @ViewBuilder

@@ -26,6 +26,15 @@ struct API {
         return URL(string: baseURL)!
     }
     
+    static func fetch(region: Region) async -> any DataSource {
+        switch region {
+        case .blumenau, .unknown:
+            return await fetchBlumenau()
+        case .portoAlegre:
+            return await fetchPortoAlegre()
+        }
+    }
+    
     static func fetchPortoAlegre() async -> PortoAlegreDataSource {
         do {
             let (data, _) = try await URLSession.shared.data(from: urlPortoAlegre)
