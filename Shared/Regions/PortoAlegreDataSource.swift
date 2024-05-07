@@ -68,8 +68,7 @@ struct PortoAlegreReading: Reading {
     var date: Date {
         let dateFormatter = ISO8601DateFormatter()
         dateFormatter.formatOptions.insert(.withFractionalSeconds)
-        var date = dateFormatter.date(from: dados.horDataHora)
-        date?.addTimeInterval(-60*60*3)
+        let date = dateFormatter.date(from: dados.horDataHora)
         return date ?? .now
     }
     

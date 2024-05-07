@@ -268,7 +268,7 @@ struct FlussWidget: Widget {
         }
         .supportedFamilies([.systemMedium, .systemSmall])
         .configurationDisplayName("Situação da enchente")
-        .description("Monitore as variações do nível da água ao longo das últimas horas.")
+        .description("Monitore a variação do nível da água ao longo das últimas horas.")
     }
     
     @ViewBuilder
