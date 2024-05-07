@@ -35,8 +35,15 @@ struct ContentView: View {
                             .padding(.top, 8)
                             .padding(.bottom, 16)
                             .background(.black)
+                        
                         HStack {
-                            Text("Para visualizar o nível do rio, adicione um Widget à sua tela de início ou tela de bloqueio.")
+                            VStack(alignment: .leading) {
+                                Text("Para monitorar a situação da enchente, adicione um Widget à sua tela de início ou tela de bloqueio.")
+                                Text("Para alterar a região, aperte-o e segure-o. Então, selecione \"Editar Widget\" e selecione a região.")
+                                    .font(.footnote)
+                                    .foregroundStyle(.secondary)
+                                    .padding(.top, 2)
+                            }
                             Spacer()
                         }
                         .multilineTextAlignment(.leading)
@@ -48,21 +55,21 @@ struct ContentView: View {
                         Self.video.player.play()
                     }
                     
-                    if #available(iOS 16.1, *) {
-                        VStack(alignment: .leading) {
-                            Toggle("Exibir Live Activity", isOn: $liveActivity)
-                                .tint(.accent)
-                            
-                            Text("Essa função está em fase experimental, e, portanto, pode não atualizar em tempo real.")
-                                .font(.footnote)
-                                .multilineTextAlignment(.leading)
-                                .foregroundStyle(.secondary)
-                                .padding(.top, 2)
-                        }
-                        .padding()
-                        .background(.quinary)
-                        .clipShape(.rect(cornerRadius: 12))
-                    }
+//                    if #available(iOS 16.1, *) {
+//                        VStack(alignment: .leading) {
+//                            Toggle("Exibir Live Activity", isOn: $liveActivity)
+//                                .tint(.accent)
+//                            
+//                            Text("Essa função está em fase experimental, e, portanto, pode não atualizar em tempo real.")
+//                                .font(.footnote)
+//                                .multilineTextAlignment(.leading)
+//                                .foregroundStyle(.secondary)
+//                                .padding(.top, 2)
+//                        }
+//                        .padding()
+//                        .background(.quinary)
+//                        .clipShape(.rect(cornerRadius: 12))
+//                    }
                     
                     VStack(alignment: .leading) {
                         HStack {
@@ -70,7 +77,7 @@ struct ContentView: View {
                             Spacer()
                         }
                         
-                        Text("Os dados exibidos pelo aplicativo provém do portal de monitoramento do [AlertaBlu](https://alertablu.blumenau.sc.gov.br/d/nivel-do-rio).")
+                        Text("Os dados exibidos para as regiões de Blumenau e Porto Alegre, provêm, respectivemente, do portal de monitoramento do [AlertaBlu](https://alertablu.blumenau.sc.gov.br/d/nivel-do-rio) e do [SNIRH](https://www.snirh.gov.br).")
                             .font(.footnote)
                             .multilineTextAlignment(.leading)
                             .foregroundStyle(.secondary)
@@ -157,10 +164,10 @@ struct ContentView: View {
         #if os(iOS)
         updateTask?.cancel()
         updateTask = Task {
-            var leitura: Leitura?
+            var leitura: BlumenauDataSource?
             
             if liveActivity {
-                leitura = await API.fetchLeituras()
+                leitura = await API.fetchBlumenau()
             }
             
             for activity in Activity<LeituraAttributes>.activities {
@@ -168,7 +175,7 @@ struct ContentView: View {
             }
             
             if var leitura {
-                leitura.niveis = Array(leitura.niveis.suffix(6))
+                leitura.readings = Array(leitura.readings.suffix(6))
                 let _ = try Activity.request(
                     attributes: LeituraAttributes(),
                     contentState: .init(leitura: leitura)
@@ -187,15 +194,15 @@ struct ContentView: View {
                 let hours = i
                 
                 try await Task.sleep(nanoseconds: UInt64(60_000_000_000*minutes+60_000_000_000*60*hours))
-                var leitura = await API.fetchLeituras()
+                var leitura = await API.fetchBlumenau()
                 
-                if leitura.alerta != .failure {
-                    leitura.niveis = Array(leitura.niveis.suffix(6))
+                if leitura.alert != .failure {
+                    leitura.readings = Array(leitura.readings.suffix(6))
                     
-                    if let nivel = leitura.nivelAtual {
+                    if let nivel = leitura.currentReading {
                         for activity in Activity<LeituraAttributes>.activities {
                             await activity.update(using: .init(leitura: leitura),
-                                                  alertConfiguration: .init(title: "Atualização do nível do rio", body: "O nível do rio agora está em \(String(format: "%.2f", nivel.nivel))m.", sound: .default))
+                                                  alertConfiguration: .init(title: "Atualização do nível da água", body: "O nível da água agora está em \(String(format: "%.2f", nivel.nivel))m.", sound: .default))
                         }
                     }
                 }

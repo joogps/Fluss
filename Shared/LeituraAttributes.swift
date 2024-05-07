@@ -11,7 +11,7 @@ import ActivityKit
 @available(iOS 16.1, *)
 struct LeituraAttributes: ActivityAttributes {
     struct ContentState: Codable, Hashable {
-        let leitura: Leitura
+        let leitura: BlumenauDataSource
     }
 }
 #endif

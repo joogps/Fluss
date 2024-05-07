@@ -17,7 +17,13 @@ struct MacContentView: View {
                     .resizable()
                     .aspectRatio(contentMode: .fill)
                 HStack {
-                    Text("Para visualizar o nível do rio, adicione um Widget ao seu Desktop ou central de notificações.")
+                    VStack(alignment: .leading) {
+                        Text("Para visualizar a situação da enchente, adicione um Widget ao seu Desktop ou central de notificações.")
+                        Text("Para alterar a região, aperte-o e segure-o. Então, selecione \"Editar \"Fluss\"\" e selecione a região.")
+                            .font(.footnote)
+                            .foregroundStyle(.secondary)
+                            .padding(.top, 2)
+                    }
                     Spacer()
                 }
                 .multilineTextAlignment(.leading)

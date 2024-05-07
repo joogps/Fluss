@@ -7,6 +7,7 @@
 
 import SwiftUI
 import AVKit
+import WidgetKit
 
 @main
 struct FlussApp: App {
@@ -15,6 +16,8 @@ struct FlussApp: App {
         WindowGroup {
             ContentView()
                 .onAppear {
+                    WidgetCenter.shared.reloadAllTimelines()
+                    
                     do {
                         try? AVAudioSession
                             .sharedInstance()

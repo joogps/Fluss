@@ -13,31 +13,45 @@ class EntryCache {
     var previousEntry: SimpleEntry?
 }
 
-struct Provider: TimelineProvider {
+struct Provider: IntentTimelineProvider {
     private let entryCache = EntryCache()
     
     func placeholder(in context: Context) -> SimpleEntry {
-        SimpleEntry(date: Date(), leitura: Leitura.sample)
+        SimpleEntry(date: Date(), leitura: BlumenauDataSource.sample)
     }
 
-    func getSnapshot(in context: Context, completion: @escaping (SimpleEntry) -> ()) {
+    func getSnapshot(for configuration: SelectRegionIntent, in context: Context, completion: @escaping (SimpleEntry) -> ()) {
         Task {
-            let leitura = await API.fetchLeituras()
+            let leitura: any DataSource
+            switch configuration.region {
+            case .blumenau, .unknown:
+                leitura = await API.fetchBlumenau()
+            case .portoAlegre:
+                leitura = await API.fetchPortoAlegre()
+            }
+            
             let entry = SimpleEntry(date: .now, leitura: leitura)
             
             completion(entry)
         }
     }
 
-    func getTimeline(in context: Context, completion: @escaping (Timeline<Entry>) -> ()) {
+    func getTimeline(for configuration: SelectRegionIntent, in context: Context, completion: @escaping (Timeline<SimpleEntry>) -> ()) {
         Task {
-            let leitura = await API.fetchLeituras()
+            let leitura: any DataSource
+            switch configuration.region {
+            case .blumenau, .unknown:
+                leitura = await API.fetchBlumenau()
+            case .portoAlegre:
+                leitura = await API.fetchPortoAlegre()
+            }
+            
             let entry = SimpleEntry(date: .now, leitura: leitura)
             var nextUpdate: Date?
             let calendar = Calendar.current
             
-            if let nivelAtual = leitura.nivelAtual {
-                let date = nivelAtual.dataLeitura
+            if let currentReading = leitura.currentReading {
+                let date = currentReading.date
                 
                 if calendar.component(.hour, from: date) >= calendar.component(.hour, from: .now) {
                     var components = DateComponents()
@@ -56,7 +70,7 @@ struct Provider: TimelineProvider {
             if let nextUpdate {
                 let timeline: Timeline<SimpleEntry>
                 
-                if entry.leitura.alerta == .failure, let previousEntry = entryCache.previousEntry {
+                if entry.leitura.alert == .failure, let previousEntry = entryCache.previousEntry {
                     timeline = Timeline(
                         entries: [previousEntry],
                         policy: .after(nextUpdate)
@@ -77,40 +91,40 @@ struct Provider: TimelineProvider {
 
 struct SimpleEntry: TimelineEntry {
     let date: Date
-    let leitura: Leitura
+    let leitura: any DataSource
 }
 
-struct FlussWidgetEntryView : View {
-    var leitura: Leitura
+struct FlussWidgetEntryView<D: DataSource>: View {
+    var leitura: D
     
     @Environment(\.widgetFamily) var widgetFamily
     
-    var niveis: [LeituraNivel] {
+    var readings: [D.LR] {
         if widgetFamily == .systemSmall {
-            return Array(leitura.sortedNiveis.suffix(3))
+            return Array(leitura.sortedReadings.suffix(3))
         } else {
-            return leitura.sortedNiveis
+            return leitura.sortedReadings
         }
     }
     
-    var sortedByLevel: [LeituraNivel] {
-        niveis.sorted { $0.nivel > $1.nivel }
+    var sortedByLevel: [D.LR] {
+        readings.sorted { $0.level > $1.level }
     }
     
     var min: Double {
-        floor(sortedByLevel.last?.nivel ?? 0)
+        floor(sortedByLevel.last?.level ?? 0)
     }
     
     var max: Double {
-        ceil(sortedByLevel.first?.nivel ?? 0)
+        ceil(sortedByLevel.first?.level ?? 0)
     }
     
     var color: Color {
-        leitura.alerta.color()
+        leitura.alert.color()
     }
     
     var updatedTime: String? {
-        if let date = niveis.last?.dataLeitura {
+        if let date = readings.last?.date {
             let formatter = DateFormatter()
             formatter.dateStyle = .none
             formatter.timeStyle = .short
@@ -125,10 +139,10 @@ struct FlussWidgetEntryView : View {
         ZStack {
             VStack {
                 HStack(spacing: 6) {
-                    Image(systemName: leitura.alerta.symbol())
+                    Image(systemName: leitura.alert.symbol())
                         .foregroundStyle(.secondary)
                     
-                    Text(leitura.alerta.text())
+                    Text(leitura.alert.text())
                         .kerning(-0.4)
                         .multilineTextAlignment(.leading)
                         .lineLimit(2)
@@ -136,7 +150,7 @@ struct FlussWidgetEntryView : View {
                     Spacer()
                     
                     if widgetFamily != .systemSmall {
-                        Text(leitura.cidade)
+                        Text(leitura.name)
                             .font(.callout.weight(.semibold))
                             .foregroundStyle(Color(white: 0.03))
                             .padding(2)
@@ -153,16 +167,16 @@ struct FlussWidgetEntryView : View {
                 .foregroundStyle(color)
                 
                 Chart {
-                    ForEach(niveis) { nivel in
-                        AreaMark(x: .value("Time", nivel.dataLeitura),
-                                 yStart: .value("Height", nivel.nivel),
+                    ForEach(readings) { nivel in
+                        AreaMark(x: .value("Time", nivel.date),
+                                 yStart: .value("Height", nivel.level),
                                  yEnd: .value("Height", min))
                         .foregroundStyle(.linearGradient(.init(colors: [color, .clear]), startPoint: .top, endPoint: .bottom))
                         .opacity(0.5)
                         
                         LineMark(
-                            x: .value("Time", nivel.dataLeitura),
-                            y: .value("Height", nivel.nivel)
+                            x: .value("Time", nivel.date),
+                            y: .value("Height", nivel.level)
                         )
                         .foregroundStyle(color)
                     }
@@ -188,7 +202,7 @@ struct FlussWidgetEntryView : View {
                 
                 HStack(alignment: .lastTextBaseline) {
                     VStack(alignment: .leading) {
-                        Text(String(format: "%.2f", niveis.last?.nivel ?? 0)+"m")
+                        Text(String(format: "%.2f", readings.last?.level ?? 0)+"m")
                             .kerning(-1.2)
                             .font(.largeTitle.bold())
                             .allowsTightening(true)
@@ -212,12 +226,12 @@ struct FlussWidgetEntryView : View {
                     
                     HStack(spacing: 8) {
                         if widgetFamily != .systemSmall {
-                            Text(String(Int(round(leitura.variacao*100)))+"cm")
+                            Text(String(Int(round(leitura.delta*100)))+"cm")
                                 .font(.headline.weight(.bold))
                                 .foregroundStyle(.secondary)
                         }
                         
-                        Image(systemName: leitura.variacao > 0 ? "chevron.up" : "chevron.down")
+                        Image(systemName: leitura.delta > 0 ? "chevron.up" : "chevron.down")
                             .font(.title2.bold())
                     }
                 }
@@ -250,24 +264,33 @@ struct FlussWidget: Widget {
     let kind: String = "FlussWidget"
 
     var body: some WidgetConfiguration {
-        StaticConfiguration(kind: kind, provider: Provider()) { entry in
-            let background = entry.leitura.alerta.color()
+        IntentConfiguration(kind: kind, intent: SelectRegionIntent.self, provider: Provider()) { entry in
+            let background = entry.leitura.alert.color()
                 .overlay(Color(white: 0.03).blendMode(.luminosity))
             
             if #available(macOS 14.0, iOS 17.0, *) {
-                FlussWidgetEntryView(leitura: entry.leitura)
+                widgetView(for: entry.leitura)
                     .containerBackground(for: .widget) {
                         background
                     }
             } else {
-                FlussWidgetEntryView(leitura: entry.leitura)
+                widgetView(for: entry.leitura)
                     .padding()
                     .background(background)
             }
         }
         .supportedFamilies([.systemMedium, .systemSmall])
-        .configurationDisplayName("Situação do rio")
-        .description("Monitore a alteração do nível do rio ao longo das últimas horas.")
+        .configurationDisplayName("Situação da enchente")
+        .description("Monitore a alteração do nível da água ao longo das últimas horas.")
+    }
+    
+    @ViewBuilder
+    func widgetView(for source: any DataSource) -> some View {
+        if let data = source as? BlumenauDataSource {
+            FlussWidgetEntryView(leitura: data)
+        } else if let data = source as? PortoAlegreDataSource {
+            FlussWidgetEntryView(leitura: data)
+        }
     }
 }
 
@@ -279,7 +302,7 @@ struct FlussWidgetLiveActivity: Widget {
             FlussWidgetEntryView(leitura: context.state.leitura)
                 .padding()
                 .background {
-                    context.state.leitura.alerta.color()
+                    context.state.leitura.alert.color()
                         .overlay(Color(white: 0.03).blendMode(.luminosity))
                 }
         } dynamicIsland: { context in
@@ -290,18 +313,18 @@ struct FlussWidgetLiveActivity: Widget {
                     FlussWidgetEntryView(leitura: leitura)
                 })
             }, compactLeading: {
-                Image(systemName: leitura.alerta.symbol())
-                    .foregroundStyle(leitura.alerta.color())
+                Image(systemName: leitura.alert.symbol())
+                    .foregroundStyle(leitura.alert.color())
             }, compactTrailing: {
-                if let nivel = leitura.nivelAtual {
-                    Text(String(format: "%.2f", nivel.nivel)+"m")
-                        .foregroundStyle(leitura.alerta.color())
+                if let nivel = leitura.currentReading {
+                    Text(String(format: "%.2f", nivel.level)+"m")
+                        .foregroundStyle(leitura.alert.color())
                         .bold()
                 }
             }, minimal: {
-                if let nivel = leitura.nivelAtual {
-                    Text(String(format: "%.2f", nivel.nivel)+"m")
-                        .foregroundStyle(leitura.alerta.color())
+                if let nivel = leitura.currentReading {
+                    Text(String(format: "%.2f", nivel.level)+"m")
+                        .foregroundStyle(leitura.alert.color())
                         .bold()
                 }
             })
@@ -313,7 +336,7 @@ struct FlussSmallWidget: Widget {
     let kind: String = "FlussSmallWidget"
     
     var body: some WidgetConfiguration {
-        StaticConfiguration(kind: kind, provider: Provider()) { entry in
+        IntentConfiguration(kind: kind, intent: SelectRegionIntent.self, provider: Provider()) { entry in
             if #available(macOS 14.0, iOS 17.0, *) {
                 content(entry: entry)
                     .containerBackground(.tertiary, for: .widget)
@@ -324,17 +347,17 @@ struct FlussSmallWidget: Widget {
             }
         }
         .supportedFamilies([.accessoryCircular, .accessoryInline])
-        .configurationDisplayName("Nível do rio")
-        .description("Monitore o nível do rio.")
+        .configurationDisplayName("Nível da água")
+        .description("Monitore o nível da água.")
     }
     
     func content(entry: SimpleEntry) -> some View {
-        if entry.leitura.alerta == .failure {
-            FlussSmallWidgetView(systemImage: entry.leitura.alerta.symbol(),
+        if entry.leitura.alert == .failure {
+            FlussSmallWidgetView(systemImage: entry.leitura.alert.symbol(),
                                  title: "")
         } else {
-            FlussSmallWidgetView(systemImage: entry.leitura.alerta.symbol(),
-                                 title: String(entry.leitura.nivelAtual?.nivel ?? 0)+"m")
+            FlussSmallWidgetView(systemImage: entry.leitura.alert.symbol(),
+                                 title: String(entry.leitura.currentReading?.level ?? 0)+"m")
         }
     }
 }
@@ -343,7 +366,7 @@ struct FlussSmallWidget2: Widget {
     let kind: String = "FlussSmallWidget2"
     
     var body: some WidgetConfiguration {
-        StaticConfiguration(kind: kind, provider: Provider()) { entry in
+        IntentConfiguration(kind: kind, intent: SelectRegionIntent.self, provider: Provider()) { entry in
             if #available(macOS 14.0, iOS 17.0, *) {
                 content(entry: entry)
                     .containerBackground(.tertiary, for: .widget)
@@ -354,17 +377,17 @@ struct FlussSmallWidget2: Widget {
             }
         }
         .supportedFamilies([.accessoryCircular, .accessoryInline])
-        .configurationDisplayName("Variação do rio")
-        .description("Monitore a variação do nível do rio.")
+        .configurationDisplayName("Variação da água")
+        .description("Monitore a variação do nível da água.")
     }
     
     func content(entry: SimpleEntry) -> some View {
-        if entry.leitura.alerta == .failure {
-            FlussSmallWidgetView(systemImage: entry.leitura.alerta.symbol(),
+        if entry.leitura.alert == .failure {
+            FlussSmallWidgetView(systemImage: entry.leitura.alert.symbol(),
                                  title: "")
         } else {
-            FlussSmallWidgetView(systemImage: entry.leitura.variacao > 0 ? "chevron.up" : "chevron.down",
-                                 title: String(Int(round(entry.leitura.variacao*100)))+"cm")
+            FlussSmallWidgetView(systemImage: entry.leitura.delta > 0 ? "chevron.up" : "chevron.down",
+                                 title: String(Int(round(entry.leitura.delta*100)))+"cm")
         }
     }
 }
