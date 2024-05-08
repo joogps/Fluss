@@ -5,6 +5,7 @@
 //  Created by João Gabriel Pozzobon dos Santos on 07/05/24.
 //
 
+#if os(iOS)
 import SwiftUI
 import WidgetKit
 
@@ -31,3 +32,4 @@ struct FlussAccessoryWidgetView: View {
     FlussAccessoryWidgetView(systemImage: "circle", title: "Title")
         .previewContext(WidgetPreviewContext(family: .accessoryCircular))
 }
+#endif

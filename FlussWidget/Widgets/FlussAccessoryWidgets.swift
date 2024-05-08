@@ -5,10 +5,10 @@
 //  Created by João Gabriel Pozzobon dos Santos on 07/05/24.
 //
 
+#if os(iOS)
 import WidgetKit
 import SwiftUI
 
-#if os(iOS)
 struct FlussWaterLevelAccessoryWidget: Widget {
     let kind: String = "FlussSmallWidget"
     

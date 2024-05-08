@@ -7,7 +7,6 @@
 
 #if os(macOS)
 import SwiftUI
-import WidgetKit
 
 struct ContentView: View {
     var body: some View {
@@ -38,8 +37,8 @@ struct ContentView: View {
                     Spacer()
                 }
                 
-                Text("Os dados exibidos pelo aplicativo provém do portal de monitoramento do [AlertaBlu](https://alertablu.blumenau.sc.gov.br/d/nivel-do-rio).")
-                    .tint(.accent)
+                Text("Os dados exibidos para as regiões de Blumenau e Porto Alegre, provêm, respectivemente, do portal de monitoramento do [AlertaBlu](https://alertablu.blumenau.sc.gov.br/d/nivel-do-rio) e do [SNIRH](https://www.snirh.gov.br).")
+                    .tint(.accentColor)
                     .font(.footnote)
                     .multilineTextAlignment(.leading)
                     .foregroundStyle(.secondary)
@@ -101,16 +100,14 @@ struct ContentView: View {
         }
         .buttonStyle(ElasticButtonStyle())
         .padding(16)
+        .padding(.vertical, 36)
         .background(Color("Background").ignoresSafeArea())
         .colorScheme(.dark)
         .font(.body.bold())
-        .onAppear {
-            WidgetCenter.shared.reloadAllTimelines()
-        }
     }
 }
 
 #Preview {
-    MacContentView()
+    ContentView()
 }
 #endif

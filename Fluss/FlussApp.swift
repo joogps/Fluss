@@ -32,6 +32,9 @@ struct FlussApp: App {
         #elseif os(macOS)
         MenuBarExtra {
             ContentView()
+                .onAppear {
+                    WidgetCenter.shared.reloadAllTimelines()
+                }
         } label: {
             Image(systemName: "drop.fill")
         }
