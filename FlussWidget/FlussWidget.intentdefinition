@@ -91,7 +91,7 @@
 					<key>INIntentParameterMetadata</key>
 					<dict>
 						<key>INIntentParameterMetadataDefaultValue</key>
-						<string>blumenau</string>
+						<string>portoAlegre</string>
 					</dict>
 					<key>INIntentParameterName</key>
 					<string>region</string>
