@@ -13,12 +13,13 @@ struct FlussWidgetBundle: WidgetBundle {
     @WidgetBundleBuilder
     var body: some Widget {
         FlussWidget()
+        
         #if os(iOS)
-        FlussSmallWidget()
-        FlussSmallWidget2()
+        FlussWaterLevelAccessoryWidget()
+        FlussWaterDeltaAccessoryWidget()
         
         if #available(iOS 16.1, *) {
-            FlussWidgetLiveActivity()
+            FlussLiveActivity()
         }
         #endif
     }

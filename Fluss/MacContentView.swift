@@ -9,7 +9,7 @@
 import SwiftUI
 import WidgetKit
 
-struct MacContentView: View {
+struct ContentView: View {
     var body: some View {
         VStack(spacing: 8) {
             VStack(spacing: 0) {

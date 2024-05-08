@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-enum ReadingAlert {
+enum ReadingAlert: Codable {
     case normal
     case observacao
     case atencao

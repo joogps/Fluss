@@ -6,8 +6,8 @@
 //
 
 import SwiftUI
-import AVKit
 import WidgetKit
+import AVKit
 
 @main
 struct FlussApp: App {
@@ -31,9 +31,9 @@ struct FlussApp: App {
         }
         #elseif os(macOS)
         MenuBarExtra {
-            MacContentView()
+            ContentView()
         } label: {
-            Image(systemName: "chevron.up.chevron.down")
+            Image(systemName: "drop.fill")
         }
         .menuBarExtraStyle(WindowMenuBarExtraStyle())
         #endif

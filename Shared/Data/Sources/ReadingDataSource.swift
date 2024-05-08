@@ -7,25 +7,25 @@
 
 import SwiftUI
 
-protocol DataSource: Codable, Equatable, Hashable {
+protocol ReadingDataSource: Codable, Equatable, Hashable {
     associatedtype R: Reading
     
-    var readings: [R] { get set }
+    var readings: [R] { get }
     
-    var name: String { get }
-    var isSample: Bool? { get set }
+    static var name: String { get }
+    static var url: URL { get }
     
-    static var sample: Self { get }
-    static var empty: Self { get }
     static func alert(from reading: R) -> ReadingAlert
     
-    var sortedReadings: [R] { get }
-    var delta: Double { get }
-    var currentReading: R? { get }
-    var alert: ReadingAlert { get }
+    static func fetch() async -> Self
 }
 
-extension DataSource {
+extension ReadingDataSource {
+    func parsed() -> ParsedReadingData {
+        let readings = self.sortedReadings.map { $0.parsed() }
+        return ParsedReadingData(readings: readings, name: Self.name, alert: alert)
+    }
+    
     var sortedReadings: [R] {
         readings.sorted { $0.date < $1.date }
     }
@@ -45,10 +45,6 @@ extension DataSource {
     }
     
     var alert: ReadingAlert {
-        if isSample == true {
-            return .sample
-        }
-        
         if let last = sortedReadings.last {
             return Self.alert(from: last)
         }

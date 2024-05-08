@@ -12,4 +12,12 @@ protocol Reading: Codable, Identifiable, Equatable, Hashable {
     
     var level: Double { get }
     var date: Date { get }
+    
+    func parsed() -> ParsedReading
+}
+
+extension Reading {
+    func parsed() -> ParsedReading {
+        ParsedReading(level: level, date: date)
+    }
 }

@@ -1,5 +1,5 @@
 //
-//  LeituraAttributes.swift
+//  ReadingDataAttributes.swift
 //  Fluss
 //
 //  Created by João Gabriel Pozzobon dos Santos on 08/10/23.
@@ -9,9 +9,9 @@
 import ActivityKit
 
 @available(iOS 16.1, *)
-struct LeituraAttributes: ActivityAttributes {
+struct ReadingDataAttributes: ActivityAttributes {
     struct ContentState: Codable, Hashable {
-        let leitura: BlumenauDataSource
+        let data: ParsedReadingData
     }
 }
 #endif

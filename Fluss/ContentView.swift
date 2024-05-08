@@ -5,6 +5,7 @@
 //  Created by João Gabriel Pozzobon dos Santos on 07/10/23.
 //
 
+#if os(iOS)
 import SwiftUI
 import AVKit
 import UserNotifications
@@ -12,13 +13,10 @@ import BackgroundTasks
 import Combine
 import FluidGradient
 import WidgetKit
-
-#if os(iOS)
 import ActivityKit
-#endif
 
 struct ContentView: View {
-    @AppStorage("liveActivity") var liveActivity = false
+    @AppStorage("liveActivityRegion") var liveActivityRegion = Region.unknown
     @Environment(\.scenePhase) var scenePhase
     
     @State var updateTask: AnyCancellable?
@@ -55,21 +53,35 @@ struct ContentView: View {
                         Self.video.player.play()
                     }
                     
-//                    if #available(iOS 16.1, *) {
-//                        VStack(alignment: .leading) {
-//                            Toggle("Exibir Live Activity", isOn: $liveActivity)
-//                                .tint(.accent)
-//                            
-//                            Text("Essa função está em fase experimental, e, portanto, pode não atualizar em tempo real.")
-//                                .font(.footnote)
-//                                .multilineTextAlignment(.leading)
-//                                .foregroundStyle(.secondary)
-//                                .padding(.top, 2)
-//                        }
-//                        .padding()
-//                        .background(.quinary)
-//                        .clipShape(.rect(cornerRadius: 12))
-//                    }
+                    if #available(iOS 16.1, *) {
+                        VStack(alignment: .leading) {
+                            HStack {
+                                Text("Atividade ao Vivo")
+                                Spacer()
+                                Picker("Atividade ao Vivo", selection: $liveActivityRegion) {
+                                    Text("Desativada")
+                                        .tag(Region.unknown)
+                                    Text("Blumenau")
+                                        .tag(Region.blumenau)
+                                    Text("Porto Alegre")
+                                        .tag(Region.portoAlegre)
+                                }
+                                .tint(Color(white: 0.9))
+                                .blendMode(.luminosity)
+                                .labelsHidden()
+                            }
+                            .padding(.top, -4)
+                            .padding(.trailing, -6)
+                            
+                            Text("Essa função está em fase experimental, e, portanto, pode não atualizar em tempo real.")
+                                .font(.footnote)
+                                .multilineTextAlignment(.leading)
+                                .foregroundStyle(.secondary)
+                        }
+                        .padding()
+                        .background(.quinary)
+                        .clipShape(.rect(cornerRadius: 12))
+                    }
                     
                     VStack(alignment: .leading) {
                         HStack {
@@ -139,7 +151,7 @@ struct ContentView: View {
         }
         .preferredColorScheme(.dark)
         .font(.body.bold())
-        .onChange(of: liveActivity) { _ in
+        .onChange(of: liveActivityRegion) { _ in
             if #available(iOS 16.1, *) {
                 updateLiveActivity()
             }
@@ -164,21 +176,21 @@ struct ContentView: View {
         #if os(iOS)
         updateTask?.cancel()
         updateTask = Task {
-            var leitura: BlumenauDataSource?
+            var data: ParsedReadingData?
             
-            if liveActivity {
-                leitura = await API.fetchBlumenau()
+            if liveActivityRegion != .unknown {
+                data = await API.fetch(region: liveActivityRegion)
             }
             
-            for activity in Activity<LeituraAttributes>.activities {
+            for activity in Activity<ReadingDataAttributes>.activities {
                 await activity.end(dismissalPolicy: .immediate)
             }
             
-            if var leitura {
-                leitura.readings = Array(leitura.readings.suffix(6))
+            if var data {
+                data.readings = Array(data.readings.suffix(6))
                 let _ = try Activity.request(
-                    attributes: LeituraAttributes(),
-                    contentState: .init(leitura: leitura)
+                    attributes: ReadingDataAttributes(),
+                    contentState: .init(data: data)
                 )
             }
         }
@@ -194,15 +206,15 @@ struct ContentView: View {
                 let hours = i
                 
                 try await Task.sleep(nanoseconds: UInt64(60_000_000_000*minutes+60_000_000_000*60*hours))
-                var leitura = await API.fetchBlumenau()
+                var data = await API.fetch(region: liveActivityRegion)
                 
-                if leitura.alert != .failure {
-                    leitura.readings = Array(leitura.readings.suffix(6))
+                if data.alert != .failure {
+                    data.readings = Array(data.readings.suffix(6))
                     
-                    if let nivel = leitura.currentReading {
-                        for activity in Activity<LeituraAttributes>.activities {
-                            await activity.update(using: .init(leitura: leitura),
-                                                  alertConfiguration: .init(title: "Atualização do nível da água", body: "O nível da água agora está em \(String(format: "%.2f", nivel.nivel))m.", sound: .default))
+                    if let nivel = data.currentReading {
+                        for activity in Activity<ReadingDataAttributes>.activities {
+                            await activity.update(using: .init(data: data),
+                                                  alertConfiguration: .init(title: "Atualização do nível da água", body: "O nível da água agora está em \(String(format: "%.2f", nivel.level))m.", sound: .default))
                         }
                     }
                 }
@@ -229,3 +241,4 @@ struct ContentView: View {
 #Preview {
     ContentView()
 }
+#endif
