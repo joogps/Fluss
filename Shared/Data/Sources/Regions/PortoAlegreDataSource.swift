@@ -26,7 +26,9 @@ struct PortoAlegreDataSource: ReadingDataSource {
         dateFormatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
         dateFormatter.timeZone = TimeZone(identifier: "UTC")
         
-        let baseURL = "https://www.snirh.gov.br/hidroweb/rest/api/documento/gerarTelemetricas?codigosEstacoes=300151130&tipoArquivo=2&periodoInicial=\(dateFormatter.string(from: startDate))&periodoFinal=\(dateFormatter.string(from: endDate))"
+        let fixedEndDate = endDate.addingTimeInterval(24*60*60)
+        
+        let baseURL = "https://www.snirh.gov.br/hidroweb/rest/api/documento/gerarTelemetricas?codigosEstacoes=300151130&tipoArquivo=2&periodoInicial=\(dateFormatter.string(from: startDate))&periodoFinal=\(dateFormatter.string(from: fixedEndDate))"
         
         return URL(string: baseURL)!
     }
